@@ -1,0 +1,162 @@
+{
+  "info": {
+    "name": "Treema-Ai API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Treema-Ai FastAPI endpoints."
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Scenario 1: HIGH PRIORITY - Urgent Refund/Delivery Issue (Negative Sentiment)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"I've been waiting 10 days. This is absolutely unacceptable and terrible service! I want an immediate refund now.\",\n  \"waiting_hours\": 240\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/analyze",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Scenario 2: General Delivery Question (Neutral Sentiment)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Hi, I was just wondering what the standard timeframe is for delivery delays? Mine is a bit late.\",\n  \"waiting_hours\": 2\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/analyze",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Scenario 3: Positive Feedback (Positive Sentiment)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"The support team was amazing! Thank you for the quick response and helping me with my issue.\",\n  \"waiting_hours\": 0\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/analyze",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Scenario 4: Feedback with Slight Frustration (Medium Priority)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"The product is great but the shipping updates are a bit confusing. Hope you can improve this.\",\n  \"waiting_hours\": 26\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/analyze",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Scenario 5: Urgent Delivery Resolution (Direct Intent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"My delivery status hasn't moved in 3 days. Can you check if there is a delay?\",\n  \"waiting_hours\": 72\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/analyze",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "analyze"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    }
+  ]
+}

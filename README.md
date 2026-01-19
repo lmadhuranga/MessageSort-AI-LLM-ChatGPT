@@ -52,8 +52,23 @@ Body JSON:
 
 Docker
 ------
+Create `.env` in the repo root:
+`GOOGLE_API_KEY=your_key_here`
+
 Build:
 `docker build -t treema-ai .`
 
 Run:
 `docker run --rm -p 8000:8000 -e GOOGLE_API_KEY=your_key_here treema-ai`
+
+Compose (foreground):
+`docker compose up --build`
+
+Compose (background / keep running):
+`docker compose up --build -d`
+
+Stop Compose:
+`docker compose down`
+
+Check logs (background):
+`docker compose logs -f`

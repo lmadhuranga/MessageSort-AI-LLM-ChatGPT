@@ -4,10 +4,5 @@ langchain-community>=0.2.0
 langchain-google-genai>=1.0.0
 fastapi>=0.110.0
 uvicorn>=0.29.0
-
-# Vector DBs
-faiss-cpu>=1.7.4 ; sys_platform != "darwin"
-chromadb>=0.5.0 ; sys_platform == "darwin"
-
 textblob>=0.17.1
 tiktoken>=0.7.0

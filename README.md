@@ -85,3 +85,5 @@ Vercel
    `AI_API_KEY=your_api_key_here`
 3) Deploy the repo in Vercel. The API will be available at:
    `https://<your-app>.vercel.app/analyze`
+Note: Vercel builds skip native vector DBs; the app falls back to a simple
+in-memory text matcher for RAG in that environment.

@@ -20,7 +20,7 @@ def require_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> None:
 
 class AnalyzeRequest(BaseModel):
     message: str = Field(..., min_length=1)
-    waiting_hours: int = Field(..., ge=0)
+    waiting_hours: Optional[int] = Field(0, ge=0)
 
 
 class AnalyzeResponse(BaseModel):

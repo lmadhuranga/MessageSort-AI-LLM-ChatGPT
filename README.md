@@ -41,6 +41,17 @@ Run
 ---
 `python main.py`
 
+Local (no Docker)
+-----------------
+1) Activate the virtual environment:
+   `source .venv/bin/activate`
+2) Start the API server:
+   `uvicorn app.api:app --reload`
+3) Call the endpoint:
+   `POST http://127.0.0.1:8000/analyze`
+   Header: `X-API-Key: your_api_key_here`
+   Body: `{"message":"My order is late","waiting_hours":48}`
+
 Ports
 -----
 - API server runs on port 8000 (http://127.0.0.1:8000).

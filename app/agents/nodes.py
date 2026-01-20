@@ -20,15 +20,16 @@ def intent_sentiment_node(state: InboxState) -> InboxState:
         "negative" if polarity < -0.2 else "positive" if polarity > 0.2 else "neutral"
     )
 
-    # 1.2 Use LLM to classify the core intent
-    prompt = f"""
-    Classify the intent of this message.
-    Choose ONLY one: delivery_issue, refund_request, general_question, feedback
-    Message: {message}
-    Respond with only the intent.
-    """
-
-    intent = llm.invoke(prompt).content.strip()
+    # 1.2 Use LLM to classify the core intent (if enabled)
+    intent = None
+    if llm is not None:
+        prompt = f"""
+        Classify the intent of this message.
+        Choose ONLY one: delivery_issue, refund_request, general_question, feedback
+        Message: {message}
+        Respond with only the intent.
+        """
+        intent = llm.invoke(prompt).content.strip()
 
     # Update state with analyzed data
     return {
@@ -83,6 +84,8 @@ def suggested_reply_node(state: InboxState) -> InboxState:
     Step 4: Generate contextual reply suggestions using the Knowledge Base.
     Combines analyzed sentiment, intent, and retrieved docs into a final response.
     """
+    if llm is None:
+        return {**state, "suggested_replies": None}
     context = "\n".join(state.get("retrieved_docs", []))
 
     prompt = f"""

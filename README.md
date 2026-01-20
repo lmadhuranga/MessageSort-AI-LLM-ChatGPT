@@ -33,6 +33,7 @@ Setup
 1) Create a `.env` file with your API keys:
    `GOOGLE_API_KEY=your_key_here`
    `AI_API_KEY=your_api_key_here`
+   `LLM_ENABLED=true`
 2) Create a virtual environment and install dependencies:
    `uv venv`
    `uv pip install -r requirement.txt`
@@ -74,6 +75,7 @@ Docker
 Create `.env` in the repo root:
 `GOOGLE_API_KEY=your_key_here`
 `AI_API_KEY=your_api_key_here`
+`LLM_ENABLED=true`
 
 Build:
 `docker build -t treema-ai .`

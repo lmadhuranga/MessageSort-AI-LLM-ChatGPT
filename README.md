@@ -30,8 +30,9 @@ Files to Know
 
 Setup
 -----
-1) Create a `.env` file with your API key:
+1) Create a `.env` file with your API keys:
    `GOOGLE_API_KEY=your_key_here`
+   `API_KEY=your_api_key_here`
 2) Create a virtual environment and install dependencies:
    `uv venv`
    `uv pip install -r requirement.txt`
@@ -49,17 +50,20 @@ Then POST:
 `POST http://127.0.0.1:8000/analyze`
 Body JSON:
 `{"message":"My order is late","waiting_hours":48}`
+Header:
+`X-API-Key: your_api_key_here`
 
 Docker
 ------
 Create `.env` in the repo root:
 `GOOGLE_API_KEY=your_key_here`
+`API_KEY=your_api_key_here`
 
 Build:
 `docker build -t treema-ai .`
 
 Run:
-`docker run --rm -p 8000:8000 -e GOOGLE_API_KEY=your_key_here treema-ai`
+`docker run --rm -p 8000:8000 -e GOOGLE_API_KEY=your_key_here -e API_KEY=your_api_key_here treema-ai`
 
 Compose (foreground):
 `docker compose up --build`

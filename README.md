@@ -1,6 +1,6 @@
 MessageSort AI
 =========
-
+![enter image description here](https://github.com/lmadhuranga/Messages-Analysis-Reply-Suggestion-With-LLM-GeminiAi/blob/main/ai-system.jpg?raw=true)
 Overview
 --------
 This project is a small customer-support AI demo built with LangGraph. It runs a

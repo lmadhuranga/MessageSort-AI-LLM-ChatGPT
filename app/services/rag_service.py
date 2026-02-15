@@ -1,7 +1,10 @@
 import re
 import sys
+import os
+import logging
 from typing import List
 
+from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 try:
@@ -10,18 +13,29 @@ except Exception:
     FAISS = None
     Chroma = None
 
+load_dotenv()
+LOGGER = logging.getLogger(__name__)
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-001")
+
 
 def get_embeddings():
-    return GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    return GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
 
 
 def create_vector_db(texts: List[str]):
-    if sys.platform == "darwin" and Chroma is not None:
-        embeddings = get_embeddings()
-        return Chroma.from_texts(texts, embeddings)
-    if FAISS is not None:
-        embeddings = get_embeddings()
-        return FAISS.from_texts(texts, embeddings)
+    try:
+        if sys.platform == "darwin" and Chroma is not None:
+            embeddings = get_embeddings()
+            return Chroma.from_texts(texts, embeddings)
+        if FAISS is not None:
+            embeddings = get_embeddings()
+            return FAISS.from_texts(texts, embeddings)
+    except Exception as exc:
+        LOGGER.warning(
+            "Vector DB initialization failed for model '%s': %s. Falling back to SimpleVectorDB.",
+            EMBEDDING_MODEL,
+            exc,
+        )
     return SimpleVectorDB(texts)
 
 
@@ -55,8 +69,17 @@ DEFAULT_DOCS = [
 
 class RAGService:
     def __init__(self, docs: List[str] = DEFAULT_DOCS):
+        self.docs = docs
         self.vector_db = create_vector_db(docs)
 
     def search(self, query: str, k: int = 2) -> List[str]:
-        results = self.vector_db.similarity_search(query, k=k)
+        try:
+            results = self.vector_db.similarity_search(query, k=k)
+        except Exception as exc:
+            LOGGER.warning(
+                "Vector search failed: %s. Reverting to SimpleVectorDB for this runtime.",
+                exc,
+            )
+            self.vector_db = SimpleVectorDB(self.docs)
+            results = self.vector_db.similarity_search(query, k=k)
         return [r.page_content for r in results]

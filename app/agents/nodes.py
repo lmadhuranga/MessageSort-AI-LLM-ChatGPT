@@ -7,6 +7,43 @@ llm = get_llm()
 rag_service = RAGService()
 
 
+def _infer_intent(message: str) -> str:
+    lowered = message.lower()
+    if any(word in lowered for word in ["refund", "money back", "chargeback"]):
+        return "refund_request"
+    if any(word in lowered for word in ["delivery", "late", "shipping", "order"]):
+        return "delivery_issue"
+    if any(word in lowered for word in ["thank", "great", "awesome", "love"]):
+        return "feedback"
+    if "?" in message:
+        return "general_question"
+    return "general_question"
+
+
+def _fallback_reply(state: InboxState) -> str:
+    intent = state.get("intent") or "general_question"
+    sentiment = state.get("sentiment") or "neutral"
+    docs = state.get("retrieved_docs") or []
+    policy = docs[0] if docs else "We are reviewing your case now."
+
+    apology = (
+        "I am sorry for the frustration this has caused. "
+        if sentiment == "negative"
+        else ""
+    )
+
+    if intent == "refund_request":
+        action = "I can help with your refund request and check the current status."
+    elif intent == "delivery_issue":
+        action = "I can help check your delivery issue and provide the next update."
+    elif intent == "feedback":
+        action = "Thank you for your feedback, and I will share it with the support team."
+    else:
+        action = "I can help answer your question and confirm the next steps."
+
+    return f"{apology}{action} {policy}"
+
+
 def intent_sentiment_node(state: InboxState) -> InboxState:
     """
     Step 1: Analyze the user message to detect sentiment and specific intent.
@@ -23,13 +60,18 @@ def intent_sentiment_node(state: InboxState) -> InboxState:
     # 1.2 Use LLM to classify the core intent (if enabled)
     intent = None
     if llm is not None:
-        prompt = f"""
-        Classify the intent of this message.
-        Choose ONLY one: delivery_issue, refund_request, general_question, feedback
-        Message: {message}
-        Respond with only the intent.
-        """
-        intent = llm.invoke(prompt).content.strip()
+        try:
+            prompt = f"""
+            Classify the intent of this message.
+            Choose ONLY one: delivery_issue, refund_request, general_question, feedback
+            Message: {message}
+            Respond with only the intent.
+            """
+            intent = llm.invoke(prompt).content.strip()
+        except Exception:
+            intent = None
+    if not intent:
+        intent = _infer_intent(message)
 
     # Update state with analyzed data
     return {
@@ -85,7 +127,7 @@ def suggested_reply_node(state: InboxState) -> InboxState:
     Combines analyzed sentiment, intent, and retrieved docs into a final response.
     """
     if llm is None:
-        return {**state, "suggested_replies": None}
+        return {**state, "suggested_replies": _fallback_reply(state)}
     context = "\n".join(state.get("retrieved_docs", []))
 
     prompt = f"""
@@ -96,8 +138,11 @@ def suggested_reply_node(state: InboxState) -> InboxState:
     Generate 1 short, polite, professional reply suggestion.
     """
 
-    print("suggested_reply_node msg_prompt", prompt)
-
-    replies = llm.invoke(prompt).content
+    try:
+        replies = llm.invoke(prompt).content
+    except Exception:
+        replies = None
+    if not replies or not replies.strip():
+        replies = _fallback_reply(state)
 
     return {**state, "suggested_replies": replies}

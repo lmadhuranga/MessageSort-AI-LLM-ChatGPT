@@ -44,6 +44,24 @@ def _fallback_reply(state: InboxState) -> str:
     return f"{apology}{action} {policy}"
 
 
+def _extract_reply(text: str) -> str:
+    if not text:
+        return ""
+    cleaned = text.strip().strip('"').strip()
+    # If the model prefaces with an explanation, take the last non-empty line.
+    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
+    candidate = lines[-1] if lines else cleaned
+    # Remove common preamble phrases.
+    lowered = candidate.lower()
+    if lowered.startswith("okay, here's") or lowered.startswith(
+        "here's a short, polite, and professional reply"
+    ):
+        # Split on colon to get the actual reply if present.
+        parts = candidate.split(":", 1)
+        candidate = parts[1].strip() if len(parts) > 1 else ""
+    return candidate.strip().strip('"').strip()
+
+
 def intent_sentiment_node(state: InboxState) -> InboxState:
     """
     Step 1: Analyze the user message to detect sentiment and specific intent.
@@ -135,11 +153,12 @@ def suggested_reply_node(state: InboxState) -> InboxState:
     Intent: {state["intent"]}
     Sentiment: {state["sentiment"]}
     Knowledge base: {context}
-    Generate 1 short, polite, professional reply suggestion.
+    Generate exactly one short, polite, professional reply suggestion.
+    Respond with only the reply text, no preamble or explanation.
     """
 
     try:
-        replies = llm.invoke(prompt).content
+        replies = _extract_reply(llm.invoke(prompt).content)
     except Exception:
         replies = None
     if not replies or not replies.strip():
